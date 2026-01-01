@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Hostel Details - Hostel Finder</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f3f4f6;
+      color: #111827;
+    }
+    a { text-decoration: none; color: inherit; }
+    .container { max-width: 900px; margin: 0 auto; padding: 16px; }
+    header { background: #ffffff; border-bottom: 1px solid #e5e7eb; }
+    .header-inner {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 16px;
+    }
+    .logo { display: flex; align-items: center; gap: 8px; }
+    .logo-mark {
+      width: 28px; height: 28px; border-radius: 8px;
+      background: #4f46e5; color: #fff;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .card {
+      background: #ffffff;
+      border-radius: 8px;
+      border: 1px solid #e5e7eb;
+      padding: 16px;
+      margin-top: 16px;
+    }
+    h1 { font-size: 22px; margin-bottom: 4px; }
+    .location { font-size: 13px; color: #6b7280; margin-bottom: 8px; }
+    .tag { font-size: 12px; padding: 2px 8px; border-radius: 999px; background: #ecfeff; color: #0369a1; margin-right: 6px; }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+      font-size: 13px;
+    }
+    .rooms { margin-top: 16px; }
+    .rooms h2 { font-size: 18px; margin-bottom: 8px; }
+    .room-card {
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+    .room-card strong { display: block; margin-bottom: 2px; }
+    .btn {
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: none;
+      background: #4f46e5;
+      color: #fff;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .btn:hover { background: #4338ca; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <div class="logo">
+        <div class="logo-mark">H</div>
+        <strong>Hostel Finder</strong>
+      </div>
+      <a href="hostels.html" style="font-size:13px;">← Back to hostels</a>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="card">
+      <h1>Green Courtyard Hostel</h1>
+      <p class="location">Kukatpally, Hyderabad · 0.8 km from college</p>
+      <span class="tag">Girls only</span>
+      <span class="tag">Verified</span>
+
+      <div class="info-grid">
+        <div><strong>Facilities:</strong><br />Wi‑Fi, 3 meals, study area, laundry</div>
+        <div><strong>Security:</strong><br />CCTV, gated entry, warden</div>
+        <div><strong>Rating:</strong><br />4.9 ★ (120 reviews)</div>
+      </div>
+
+      <div class="rooms">
+        <h2>Available room types</h2>
+
+        <div class="room-card">
+          <div>
+            <strong>2‑sharing · Non‑AC</strong>
+            <span>₹6,800 / month · Deposit ₹6,800</span>
+          </div>
+          <button class="btn" onclick="goToBooking('2-sharing Non-AC')">Book / visit</button>
+        </div>
+
+        <div class="room-card">
+          <div>
+            <strong>2‑sharing · AC</strong>
+            <span>₹7,900 / month · Deposit ₹7,900</span>
+          </div>
+          <button class="btn" onclick="goToBooking('2-sharing AC')">Book / visit</button>
+        </div>
+
+        <div class="room-card">
+          <div>
+            <strong>Single room</strong>
+            <span>₹8,600 / month · Deposit ₹8,600</span>
+          </div>
+          <button class="btn" onclick="goToBooking('Single room')">Book / visit</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- <script>
+    function goToBooking(room) {
+      const hostel = encodeURIComponent("Green Courtyard Hostel");
+      const roomType = encodeURIComponent(room);
+      window.location.href = `booking.html?hostel=${hostel}&room=${roomType}`;
+    }
+  </script> -->
+  <script>
+  async function loadHostel() {
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get("id");
+    if (!id) {
+      alert("No hostel id provided.");
+      return;
+    }
+
+    try {
+      const res = await fetch(`http://localhost:5000/api/hostels/${id}`);
+      const data = await res.json();
+      if (!res.ok) {
+        alert(data.message || "Error loading hostel");
+        return;
+      }
+
+      // Example: adjust DOM to show data
+      document.querySelector("h1").textContent = data.name;
+      document.querySelector(".location").textContent =
+        `${data.area}, ${data.city} · ${data.distanceKm} km from college`;
+
+      // For simplicity, keep static room cards now.
+      // Later, you can loop over data.roomTypes if your API returns them.
+    } catch (err) {
+      console.error(err);
+      alert("Network error");
+    }
+  }
+
+  function goToBooking(room) {
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get("id") || "";
+    const hostelName = document.querySelector("h1").textContent;
+    const hostel = encodeURIComponent(hostelName);
+    const roomType = encodeURIComponent(room);
+    window.location.href = `booking.html?hostel=${hostel}&room=${roomType}&id=${id}`;
+  }
+
+  loadHostel();
+</script>
+
+</body>
+</html>
